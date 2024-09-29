@@ -4,6 +4,7 @@ import entity.AbstractEntity;
 
 import java.util.HashMap;
 
+import java.util.Map;
 import java.util.Random;
 
 public class WorldMap {
@@ -42,6 +43,12 @@ public class WorldMap {
             spawnObject(entity);
         }
         map.put(position,entity);
+    }
+    public void MoveEntity(AbstractEntity entity, Coordinates startPosition,Coordinates endPosition) {
+        var placer1 = map.get(startPosition);
+        var placer2 = map.get(endPosition);
+        map.put(startPosition,entity);
+        map.put(endPosition,entity);
     }
 
 }

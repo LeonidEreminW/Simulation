@@ -16,13 +16,13 @@ public class Renderer {
                 if(worldMap.map.get(pos)==null){
                     System.out.print(" "+i+j+" ");
                 }else{
-                    System.out.print(worldMap.map.get(pos).image);
+                    System.out.print(" "+worldMap.map.get(pos).image+" ");
                 };
             }
             System.out.println();
         }
     }
-    public void renderArray(int[][] array,int x,int y){
+    public static void renderArray(int[][] array,int x,int y){
         for(var i = 0;i<x;i++){
             System.out.println();
             for(int j = 0;j<y;j++){
@@ -30,7 +30,7 @@ public class Renderer {
             }
         }
     }
-    public void renderDeque(ArrayDeque<Coordinates> deq){
+    public static void renderDeque(ArrayDeque<Coordinates> deq){
         System.out.println();
         while (!deq.isEmpty()){
             var elem = deq.pollLast();

@@ -1,8 +1,6 @@
 package simulation;
 
-import entity.Herbivore;
-import entity.Predator;
-import entity.Rock;
+import entity.*;
 
 
 import java.util.*;
@@ -15,9 +13,16 @@ public class Simulation {
 
     public void initialize() {
         worldMap = new WorldMap(worldWidth, worldLength);
-        worldMap.spawnObject(new Rock(), 8, 8);
-//        worldMap.spawnObject(new Predator());
-//        worldMap.spawnObject(new Herbivore());
+        worldMap.spawnObject(new Rock(), 2, 2);
+        worldMap.spawnObject(new Rock(), 3, 2);
+        worldMap.spawnObject(new Rock(), 3, 3);
+        worldMap.spawnObject(new Rock(), 4, 3);
+        worldMap.spawnObject(new Grass(),2,5);
+        worldMap.spawnObject(new Tree(),1,5);
+        worldMap.spawnObject(new Tree(),3,6);
+        worldMap.spawnObject(new Tree(),5,5);
+        worldMap.spawnObject(new Tree(),6,2);
+        worldMap.spawnObject(new Herbivore(),3,1);
         renderer = new Renderer(worldMap);
     }
 
@@ -27,7 +32,7 @@ public class Simulation {
 
     public void startSimulation() {
         renderer.renderWorld();
-        renderer.renderDeque(breadthFirstSearch(new Coordinates(1, 1), "Rock"));
+        breadthFirstSearch(new Coordinates(3, 1), EntityType.Grass);
 
     }
 
@@ -35,7 +40,7 @@ public class Simulation {
 
     }
 
-    public ArrayDeque<Coordinates> breadthFirstSearch(Coordinates startNode, String className) {
+    public ArrayDeque<Coordinates> breadthFirstSearch(Coordinates startNode, EntityType type) {
         int[][] visited = new int[worldWidth + 2][worldLength + 2];
         int[][] distance = new int[worldWidth][worldLength];
         var from = new HashMap<Coordinates, Coordinates>();
@@ -44,9 +49,14 @@ public class Simulation {
         }
         for (var i = 1; i < worldWidth+1; i++) {
             for (var j = 1; j < worldLength+1; j++) {
-                visited[i][j] = 1;
+                var nodeTested = worldMap.map.get(new Coordinates(i-1, j-1));
+                if(nodeTested == null || nodeTested.type != EntityType.Tree&&nodeTested.type != EntityType.Rock) {
+                    visited[i][j] = 1;
+                }
+
             }
         }
+
 
 
         Queue<Coordinates> queue = new LinkedList<>();
@@ -60,11 +70,13 @@ public class Simulation {
 //            renderer.renderArray(visited, worldWidth + 2, worldLength + 2);
 //            renderer.renderArray(distance, worldWidth, worldLength);
             var current_node = queue.remove();
+
             var currentNodeObj = worldMap.map.get(current_node);
 
             //проверка на то что ячейка содержит искомый класс
-            if (currentNodeObj != null && currentNodeObj.getClass().getSimpleName().equals(className)) {
-                return getPath(from,current_node,from.get(current_node));
+            if (currentNodeObj != null && currentNodeObj.type == type) {
+
+                return getPath(from,current_node);
             }
             for (var i : new int[]{-1, 1}) {
                 var nextX = current_node.x + i;
@@ -93,12 +105,12 @@ public class Simulation {
         return null;
 
     }
-    public ArrayDeque<Coordinates> getPath(HashMap<Coordinates,Coordinates> from, Coordinates finish, Coordinates finishFrom) {
+    public ArrayDeque<Coordinates> getPath(HashMap<Coordinates,Coordinates> from, Coordinates finish) {
         var path = new ArrayDeque<Coordinates>();
         var mark = new Coordinates(-1,-1);
         var flag = true;
         path.add(finish);
-        var previousNode = from.get(finishFrom);
+        var previousNode = from.get(finish);
         while (flag){
 
             if (previousNode.equals(mark)) {
@@ -108,16 +120,10 @@ public class Simulation {
             path.add(previousNode);
             previousNode=from.get(previousNode);
         }
+        Renderer.renderDeque(path);
         return path;
     }
-
-    public boolean isNotUsedNode(Coordinates node, Queue<Coordinates> usedNodes) {
-        if (usedNodes.contains(node)) {
-            return false;
-        }
-        return true;
-    }
-
+//TODO решить что лучше, создание и заполнение массива границ, или 4 проверки
     public boolean isOnWorldPlane(Coordinates node) {
         if (node.x + 1 <= worldWidth && node.y + 1 <= worldLength && node.x >= 0 && node.y >= 0) {
             return true;
